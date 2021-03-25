@@ -77,6 +77,5 @@ typings/
 
 # additions
 keys.js
-_tasks.txt
 .DS_Store
 keys.py

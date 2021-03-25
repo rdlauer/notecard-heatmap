@@ -5,7 +5,7 @@ import keys
 import notecard
 
 # set some constants
-GEOFENCE_METERS = 20
+GEOFENCE_METERS = 50
 PRODUCTUID = keys.PRODUCTUID
 
 # init onboard led
@@ -30,8 +30,8 @@ sleep(2)
 req = {"req": "hub.set"}
 req["product"] = PRODUCTUID
 req["mode"] = "periodic"
-req["inbound"] = 60
-req["outbound"] = 5
+req["inbound"] = 120
+req["outbound"] = 15
 rsp = card.Transaction(req)
 
 # init gps on notecard in continuous mode
@@ -57,19 +57,18 @@ def track_location(lat, lon):
         rsp = card.Transaction(req)
 
         # double check that gps is still active!
-        if "{gps-sats}" in rsp["status"] and "lat" in rsp and rsp["max"] >= GEOFENCE_METERS:
+        if check_gps(rsp) and rsp["max"] >= GEOFENCE_METERS:
             loc_changed = True
-            lcd_msg("LOCATION CHANGED")
+            lcd_msg("GPS LOC CHANGED")
             new_lat = rsp["lat"]
             new_lon = rsp["lon"]
-            sleep(1)  # just to catch a glimpse on lcd
             # get the current cell signal measure
             bars = get_cell_bars()
             add_note(new_lat, new_lon, bars)
             # reset and start tracking location again!
             track_location(new_lat, new_lon)
         else:
-            lcd_msg("NO LOCATION CHANGE")
+            lcd_msg("NO GPS CHANGE")
             sleep(5)
 
 
@@ -80,6 +79,7 @@ def add_note(lat, lon, bars):
     req["start"] = True
     req["body"] = {"lat": lat, "lon": lon, "bars": bars}
     rsp = card.Transaction(req)
+    lcd_msg("NOTE SENT!")
 
 
 def set_geofence(lat, lon):
@@ -87,6 +87,7 @@ def set_geofence(lat, lon):
     req = {"req": "card.location.mode", "mode": "continuous", "minutes": 0,
            "lat": lat, "lon": lon, "max": GEOFENCE_METERS}
     rsp = card.Transaction(req)
+    lcd_msg("GEOFENCE SET")
 
 
 def get_cell_bars():
@@ -99,20 +100,29 @@ def get_cell_bars():
 def lcd_msg(msg):
     """ displays a message on the lcd screen """
     lcd.clear()
+    sleep(0.5)
     lcd.putstr(msg)
     print("*****" + msg + "*****")
+    sleep(0.5)
+
+
+def check_gps(rsp):
+    """ checks if gps module is active with location """
+    if ("{gps-sats}" in rsp["status"] and "lat" in rsp):
+        return True
+    else:
+        return False
 
 
 while not is_gps_active:
-    """ checks to see if the gps module is active """
+    """ if gps module is active, start tracking location """
     req = {"req": "card.location"}
     rsp = card.Transaction(req)
 
-    if ("{gps-sats}" in rsp["status"] and "lat" in rsp):
+    if check_gps(rsp):
         is_gps_active = True
         lcd_msg("GPS ACTIVATED")
-        sleep(2)
         track_location(rsp["lat"], rsp["lon"])
     else:
-        lcd_msg("GPS STILL INACTIVE")
+        lcd_msg("GPS INACTIVE")
         sleep(20)
