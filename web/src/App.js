@@ -37,7 +37,7 @@ class App extends React.Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p>Cell Signal Heatmap in {this.state.location}</p>
+          <p>Cell Signal Heatmap near {this.state.location}</p>
           <div className="Map">
             <MapContainer></MapContainer>
           </div>

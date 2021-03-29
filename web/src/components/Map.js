@@ -11,7 +11,7 @@ const containerStyle = {
 };
 
 const options = {
-  radius: 15,
+  radius: 40,
 };
 
 let db = firebase.firestore();

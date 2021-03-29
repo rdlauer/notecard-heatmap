@@ -38,11 +38,6 @@ rsp = card.Transaction(req)
 req = {"req": "card.location.mode", "mode": "continuous"}
 rsp = card.Transaction(req)
 
-# perform a manual sync with notehub (THIS SHOULD NOT BE NECESSARY...)
-req = {"req": "hub.sync"}
-rsp = card.Transaction(req)
-sleep(30)  # giving time for GPS to rev up...
-
 # init variable to tell us if gps is active
 is_gps_active = False
 
