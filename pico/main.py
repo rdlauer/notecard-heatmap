@@ -30,8 +30,8 @@ sleep(2)
 req = {"req": "hub.set"}
 req["product"] = PRODUCTUID
 req["mode"] = "periodic"
-req["inbound"] = 120
-req["outbound"] = 15
+req["inbound"] = 720
+req["outbound"] = 20
 rsp = card.Transaction(req)
 
 # init gps on notecard in continuous mode
@@ -71,7 +71,6 @@ def add_note(lat, lon, bars):
     """ uploads the note/event to notehub.io """
     req = {"req": "note.add"}
     req["file"] = "bars.qo"
-    req["start"] = True
     req["body"] = {"lat": lat, "lon": lon, "bars": bars}
     rsp = card.Transaction(req)
     lcd_msg("NOTE SENT!")
