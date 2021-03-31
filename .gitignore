@@ -79,3 +79,4 @@ typings/
 keys.js
 .DS_Store
 keys.py
+main_geofence.py

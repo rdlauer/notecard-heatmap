@@ -4,8 +4,7 @@ from time import sleep
 import keys
 import notecard
 
-# set some constants
-GEOFENCE_METERS = 50
+# set the Notehub ProductUID
 PRODUCTUID = keys.PRODUCTUID
 
 # init onboard led
@@ -31,20 +30,22 @@ req = {"req": "hub.set"}
 req["product"] = PRODUCTUID
 req["mode"] = "periodic"
 req["inbound"] = 720
-req["outbound"] = 20
+req["outbound"] = 15
 rsp = card.Transaction(req)
 
 # init gps on notecard in continuous mode
 req = {"req": "card.location.mode", "mode": "continuous"}
 rsp = card.Transaction(req)
 
+# give gps time to acquire signal
+sleep(60)
+
 # init variable to tell us if gps is active
 is_gps_active = False
 
 
 def track_location(lat, lon):
-    """ if gps is active and location has changed significantly, create a note in notehub """
-    set_geofence(lat, lon)
+    """ if gps is active and location has changed, create a note in notehub """
     loc_changed = False
 
     while not loc_changed:
@@ -52,19 +53,19 @@ def track_location(lat, lon):
         rsp = card.Transaction(req)
 
         # double check that gps is still active!
-        if check_gps(rsp) and rsp["max"] >= GEOFENCE_METERS:
+        if check_gps(rsp) and rsp["lat"] != lat and rsp["lon"] != lon:
             loc_changed = True
             lcd_msg("GPS LOC CHANGED")
             new_lat = rsp["lat"]
             new_lon = rsp["lon"]
-            # get the current cell signal measure
             bars = get_cell_bars()
             add_note(new_lat, new_lon, bars)
-            # reset and start tracking location again!
+            sleep(10)
+            # start tracking location again!
             track_location(new_lat, new_lon)
         else:
             lcd_msg("NO GPS CHANGE")
-            sleep(5)
+            sleep(10)
 
 
 def add_note(lat, lon, bars):
@@ -73,15 +74,7 @@ def add_note(lat, lon, bars):
     req["file"] = "bars.qo"
     req["body"] = {"lat": lat, "lon": lon, "bars": bars}
     rsp = card.Transaction(req)
-    lcd_msg("NOTE SENT!")
-
-
-def set_geofence(lat, lon):
-    """ sets a new geofence with center point on provided lat/lon """
-    req = {"req": "card.location.mode", "mode": "continuous", "minutes": 0,
-           "lat": lat, "lon": lon, "max": GEOFENCE_METERS}
-    rsp = card.Transaction(req)
-    lcd_msg("GEOFENCE SET")
+    lcd_msg("NOTE SAVED")
 
 
 def get_cell_bars():
