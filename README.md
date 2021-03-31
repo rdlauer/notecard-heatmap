@@ -4,7 +4,8 @@ In this web + cloud + IoT project, I use a cellular + GPS device (Notecard) and
 a Raspberry Pi Pico to create a gorgeous heatmap of cell signal data in my city.
 
 > Watch an [intro video](https://youtu.be/aFaDIDqyjCE) and then view the
-> complete tutorial over at [Hackster.io](NEED LINK)!
+> complete tutorial over at
+> [Hackster.io](https://www.hackster.io/rob-lauer/cellular-signal-heatmap-with-raspberry-pi-pico-and-gps-1e16df)!
 
 ![completed project](images/completed-web.jpg)
 
